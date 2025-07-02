@@ -1,0 +1,38 @@
+build a basic app, backend in golang fiber, frontend in react-vite. The unique thing about this app is that it is going to containerize another app. "I want to build a website that containerizes instances of barebones apps so that I can develop and app but then sell the app being hosted in its own custom "image" or "Instance" so that way when I a suite of applications, the user may only need one. and that application will only be their data, containerized within their account. This could also be a desktop app where the skeletion of the app is there, but the users have containerized their own version or branch with their own data. The goal is to ensure the user has full control of their own data within the same system. Like self hosting deployable apps within the umbrella website." So build a basic back and front end with this idea, so when I visit the frontend, I can select launch conatiner and it launches a fully containerized smaller golang fiber react app. 
+
+...
+Great idea! Here’s a plan for a minimal proof-of-concept for your described system:
+Project Structure
+Apply to Idea.txt
+How it Works
+Frontend:
+Simple React UI with a button: “Launch Containerized App”.
+Shows a list of running containers (optional for MVP).
+Backend:
+Exposes an API endpoint /launch that, when called, spins up a new Docker container running the app_template (the barebones app).
+Each container is isolated and can be mapped to a user.
+App Template:
+A minimal Golang Fiber + React app, containerized, to be launched as instances.
+Step-by-Step Plan
+Set up the backend (Golang Fiber):
+API endpoint to launch a new container (using Docker SDK for Go).
+(Optional) API to list running containers.
+Set up the frontend (React + Vite):
+Button to trigger the backend /launch endpoint.
+(Optional) Display running containers.
+Create the app template:
+Minimal Golang Fiber + React app, with its own Dockerfile.
+Docker Compose (optional for local dev):
+To orchestrate the main backend, frontend, and template app containers.
+Let’s Start:
+1. Backend: Golang Fiber API
+Expose /launch endpoint.
+Use Docker Go SDK to spin up a new container from the app_template image.
+2. Frontend: React + Vite
+Simple UI: “Launch Containerized App” button.
+Calls backend /launch.
+3. App Template
+Minimal “Hello from your containerized app!” Golang Fiber + React app.
+Let me scaffold the backend and frontend folders, and create the basic files for you.
+After that, I’ll show you how to wire up the Docker logic and the frontend call.
+Let’s start by scaffolding the folders and basic files.

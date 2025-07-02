@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    command:
+      # Enables the web UI and API on port 8080 (optional)
+      - "--api.dashboard=true"
+      - "--api.insecure=true" # Use for development only
+      # Enables the Docker provider and binds Traefik to the Docker socket
+      - "--providers.docker=true"
+      # Do not expose containers unless explicitly labeled
+      - "--providers.docker.exposedByDefault=false"
+      # Defines an entrypoint for HTTP traffic on port 80
+      - "--entrypoints.web.address=:80"
+    ports:
+      # The HTTP port Traefik listens on for incoming requests
+      - "80:80"
+      # The Web UI (access at http://localhost:8080)
+      - "8080:8080"
+    volumes:
+      # Mounts the Docker socket, allowing Traefik to listen to Docker events
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  orchestrator-backend:
+    # We'll rename the backend service to be clearer it's the orchestrator
+    build: ./backend # Build the orchestrator backend service from the ./backend directory
+    container_name: "orchestrator-backend"
+    # The orchestrator backend does not need to expose ports directly if Traefik is handling access
+    # ports:
+    #   - "8080:8080" # We will remove this direct exposure
+    labels:
+      # Enable Traefik for this service (optional, but good practice)
+      - "traefik.enable=true"
+      # Route /launch, /api/launch, /api/containers, and /api/templates to the backend
+      - "traefik.http.routers.orchestrator.rule=Host(`localhost`) && (PathPrefix(`/launch`) || PathPrefix(`/api/launch`) || PathPrefix(`/api/containers`) || PathPrefix(`/api/templates`))"
+      # Define the service the router will use
+      - "traefik.http.services.orchestrator.loadbalancer.server.port=8080" # Orchestrator backend listens on port 8080 inside its container
+    volumes:
+       # Mount the Docker socket into the backend container so it can launch other containers
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  frontend:
+    build: ./frontend
+    container_name: "frontend"
+    labels:
+      - "traefik.enable=true"
+      # Route all other requests to the frontend
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5174"
